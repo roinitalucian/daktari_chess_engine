@@ -1,0 +1,33 @@
+#ifndef ENGINE_H
+#define ENGINE_H
+
+using namespace std;
+
+const int pawn = 1;
+const int knight = 2;
+const int bishop = 3;
+const int rook = 4;
+const int queen = 5;
+const int king = 6;
+
+const int op_pawn = -1;
+const int op_knight = -2;
+const int op_bishop = -3;
+const int op_rook = -4;
+const int op_queen = -5;
+const int op_king = -6;
+
+const int rim = 7;
+const int empty = 0;
+
+void start_game();
+void flip_board(int board[12][12]);
+void move(string m, int board[12][12]);
+void initialize_game(int board[12][12], bool *play_white,
+	bool *play_black, bool *white_turn, bool *black_turn);
+void make_move(int board[12][12], int time, int otim);
+string search_legal_move(int board[12][12], int row, int col, int piece);
+
+void print_board(int board[12][12], ofstream& f);
+
+#endif
