@@ -10,3 +10,4 @@ utils.o: utils.cpp utils.h
 clean:
 	rm *.o
 	rm engine
+	rm received_commands.txt

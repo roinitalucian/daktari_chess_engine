@@ -25,7 +25,7 @@ void flip_board(int board[12][12]);
 void move(string m, int board[12][12]);
 void initialize_game(int board[12][12], bool *play_white,
 	bool *play_black, bool *white_turn, bool *black_turn);
-void make_move(int board[12][12], int time, int otim);
+void make_move(int board[12][12], int time, int otim, bool play_white);
 string search_legal_move(int board[12][12], int row, int col, int piece);
 
 void print_board(int board[12][12], ofstream& f);

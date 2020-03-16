@@ -8,4 +8,6 @@ int coord_to_row(char c);
 char col_to_coord(char c);
 char row_to_coord(char c);
 
+string convert_move(string m);
+
 #endif

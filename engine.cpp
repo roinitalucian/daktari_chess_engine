@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 #include "engine.h"
 #include "utils.h"
@@ -41,8 +42,9 @@ void start_game() {
 
 
 	while (1) {
-
+		myfile << "DAKTARI_JUNIOR";
 		print_board(board, myfile);
+		myfile << "DAKTARI";
 		getline(cin, input);
 
 		myfile << input << endl;
@@ -55,14 +57,21 @@ void start_game() {
 			// TODO
 
 		} else if (input == "go") {
-			// TODO
-
+			if((white_turn && play_black) || (black_turn && play_white)) {
+				myfile << "SE FACE SCHIMBAREA" << endl;
+				flip_board(board);
+				swap(play_white, play_black);
+				swap(time, otim);
+				make_move(board, time, otim, play_white);
+				swap(white_turn, black_turn);
+				continue;
+			}
 		} else if (input == "black") {
-			// TODO
-
+			;
 		} else if (input == "white") {
-			// TODO
-
+			;
+		} else if (input ==  "new") {
+			return;
 		} else if (input == "random") {
 			continue;
 		} else if (input.substr(0, 5) == "level") {
@@ -72,15 +81,12 @@ void start_game() {
 		} else if (input == "post") {
 			continue;
 		} else {
-			// if (input == "b2b4") {
-			// 	cout << "move b7b6\n";
-			// } else if (input == "h2h3") {
-			// 	cout << "move g8f6\n";
-			// } else if (input == "g2g4") {
-			// 	cout << "move d7d6\n";
-			// }
+			if (play_white) {
+				input = convert_move(input);
+			}
 			move(input, board);
-			make_move(board, time, otim);
+			make_move(board, time, otim, play_white);
+			// swap(white_turn, black_turn);
 		}
 
 	}
@@ -88,7 +94,7 @@ void start_game() {
     myfile.close();
 }
 
-void make_move(int board[12][12], int time, int otim) {
+void make_move(int board[12][12], int time, int otim, bool play_white) {
 	string next_move;
 	// it work just for the pawns atm
 	for (int i = 2; i < 10; i++) {
@@ -97,8 +103,13 @@ void make_move(int board[12][12], int time, int otim) {
 				next_move = search_legal_move(board, i, j, pawn);
 				if (next_move != "") {
 					move(next_move, board);
+					if (play_white) {
+						next_move = convert_move(next_move);
+					}
 					cout << "move " << next_move << "\n";
 					return;
+				} else {
+					cout << "resign\n";
 				}
 			}
 		}
@@ -153,9 +164,7 @@ void flip_board(int board[12][12]) {
 	int aux;
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 12; j++) {
-			aux = board[i][j];
-			board[i][j] = board[11 - i][j];
-			board[11 - i][j] = aux;
+			swap(board[i][j], board[11 - i][11 - j]);
 		}
 	}
 
@@ -171,14 +180,14 @@ void initialize_game(int board[12][12], bool *play_white,
 	// board[12][12] = {
 	// 	{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
 	// 	{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
-	// 	{7, 7,-4,-2,-3,-5,-6,-3,-2,-4, 7, 7},
-	// 	{7, 7,-1,-1,-1,-1,-1,-1,-1,-1, 7, 7},
-	// 	{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
-	// 	{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
-	// 	{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
-	// 	{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
-	// 	{7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7},
 	// 	{7, 7, 4, 2, 3, 5, 6, 3, 2, 4, 7, 7},
+	// 	{7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7},
+	// 	{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
+	// 	{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
+	// 	{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
+	// 	{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
+	// 	{7, 7,-1,-1,-1,-1,-1,-1,-1,-1, 7, 7},
+	// 	{7, 7,-4,-2,-3,-5,-6,-3,-2,-4, 7, 7},
 	// 	{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
 	// 	{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}
 	// };
@@ -203,4 +212,5 @@ void print_board(int board[12][12], ofstream& f) {
 		}
 		f << endl << "-------------------------------" << endl;
 	}
+	f << "CURUL";
 }
