@@ -24,3 +24,18 @@ std::string convert_move(std::string m) {
 	new_m.at(3) = '9' - m.at(3) + '0';
 	return new_m;
 }
+
+bool is_move(std::string input) {
+	if (input.length() != 4) {
+		return false;
+	}
+	char c1 = input.at(0);
+	char c2 = input.at(1);
+	char c3 = input.at(2);
+	char c4 = input.at(3);
+	return (islower(c1) && islower(c3) && isdigit(c2) && isdigit(c4));
+}
+
+bool my_turn(bool white_turn, bool black_turn, bool play_white, bool play_black) {
+	return !((white_turn && play_black) || (black_turn && play_white));
+}

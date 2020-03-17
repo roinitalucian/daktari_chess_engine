@@ -1,5 +1,71 @@
-PROIECT PA 2020
+Daktari Chess Engine
+an XBoard engine
 
-Roinita Lucian-Teodor
-Calin Dragos-Stefan
-Mitrofan Laurentiu-Marian
+Roinita Lucian-Teodor 325CA
+Calin Dragos-Stefan 325CA
+Mitrofan Laurentiu-Marian 325CA
+
+
+
+
+How to use:
+
+	- place the engine directory inside the xboard directory.
+	- open the engine directory.
+	- make build - to compile the program.
+	- make run - to run xboard with the engine loaded.
+
+
+
+
+Project Structure:
+
+	- main.cpp - starts the program and calls the start_game() function.
+	- engine.cpp - contains the main loop of the game.
+	- utils.cpp - functions that do not influence the game flow directly,
+	but are used inside the main ones.
+	- headers that contain all the functions' declarations.
+
+
+
+
+
+Algorithmic approach:
+
+	PHASE 1
+
+		We did not implement strategy algorithms so far. The only things
+	we did were representing the table and pieces internally, writing the
+	main functions of the program and communicating with XBoard.
+		We chose to represent the chess board as a 12x12 matrix, instead
+	of a classic 8x8, to avoid future problems with pieces running off
+	the board. Thus, there is a 2 box sized rim around the board.
+		The pieces are integers. We used positive numbers for the engine
+	pieces and negative numbers for the opponent's ones.
+		The most important functions is search_legal_moves(), that iterates
+	through all the pieces on the board and finds the possible moves for
+	each of them. So far it works for pawns only, but we will add the rest
+	soon.
+
+
+
+
+
+Sources:
+
+	- https://www.gnu.org/software/xboard/manual/xboard.html
+	- https://www.gnu.org/software/xboard/engine-intf.html
+	- https://www.cprogramming.com/tutorial/AI/chessboardrep.html
+
+
+
+
+
+Responsibilities:
+
+	- Roinita Lucian: started the project and implemented the main features
+	of the engine.
+	- Calin Dragos: implemented some commands and fixed several problems
+	of the program.
+	- Mitrofan Laurentiu: fixed multiple errors and helped with the general
+	flow of the program.
