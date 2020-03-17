@@ -11,6 +11,7 @@ clean:
 	rm *.o
 	rm engine
 	rm received_commands.txt
+	rm *.debug
 
 run: build
 	../xboard -fcp ./engine -debug -pieceImageDirectory ../svg/
