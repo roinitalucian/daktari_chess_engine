@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <vector>
 #include <ctype.h>
 
 #include "engine.h"
@@ -139,8 +140,10 @@ void make_move(int board[12][12], int time, int otim, bool play_white) {
 	// it work just for the pawns atm
 	for (int i = 2; i < 10; i++) {
 		for(int j = 2; j < 10; j++) {
-			if (board[i][j] == pawn) {
-				next_move = search_legal_move(board, i, j, pawn);
+			if (board[i][j] > 0) {
+				// to be modified
+				next_move = search_legal_move(board, i, j, board[i][j])
+				[search_legal_move(board, i, j, board[i][j]).size() - 1];
 				if (next_move != "") {
 					move(next_move, board);
 					if (play_white) {
@@ -155,38 +158,281 @@ void make_move(int board[12][12], int time, int otim, bool play_white) {
 	cout << "resign\n";
 }
 
+// moves for king and knight
+void add_simple_move (vector<string> &moves, int board[12][12], int row, int col,
+	int row_mod, int col_mod) {
+	int new_row, new_col;
+	if (board[row + row_mod][col + col_mod] <= 0) {
+		new_row = row + row_mod;
+		new_col = col + col_mod;
+		moves.push_back(create_move(col, row, new_col, new_row));
+	}
+}
+
 // searches all legal moves a piece can make from a given position
-string search_legal_move(int board[12][12], int row, int col, int piece) {
-	string move = "qqqq";
+vector<string> search_legal_move(int board[12][12], int row, int col, int piece) {
+	vector<string> moves;
 	int new_row;
 	int new_col;
 	switch (piece) {
-		// search for legal pawn moves
 		case pawn:
 			if (board[row + 1][col] == empty) {
 				new_row = row + 1;
 				new_col = col;
-			} else if (board[row + 1][col + 1] < 0 && board[row + 1][col + 1] != rim) {
+				moves.push_back(create_move(col, row, new_col, new_row));
+			}
+			if (board[row + 1][col + 1] < 0 && board[row + 1][col + 1] != rim) {
 				new_row = row + 1;
 				new_col = col + 1;
-			} else if (board[row + 1][col - 1] < 0 && board[row + 1][col - 1] != rim) {
+				moves.push_back(create_move(col, row, new_col, new_row));
+			}
+			if (board[row + 1][col - 1] < 0 && board[row + 1][col - 1] != rim) {
 				new_row = row + 1;
 				new_col = col - 1;
-			} else {
-				return "";
+				moves.push_back(create_move(col, row, new_col, new_row));
+			}
+			if (moves.size() == 0) {
+				moves.push_back("");
 			}
 		break;
+
+		case bishop:
+			// make main diagonal moves
+			for (int i = row - 1, j = col - 1; i > 1 && j > 1; i--, j--) {
+				if ((i - j) == (row - col)) {
+					if (board[i][j] == 0) {
+						moves.push_back(create_move(col, row, j, i));
+					} else if (board[i][j] < 0) {
+						moves.push_back(create_move(col, row, j, i));
+						break;
+					} else if (board[i][j] > 0) {
+						break;
+					}
+				}
+			}
+			for (int i = row + 1, j = col + 1; i < 10 && j < 10; i++, j++) {
+				if ((i - j) == (row - col)) {
+					if (board[i][j] == 0) {
+						moves.push_back(create_move(col, row, j, i));
+					} else if (board[i][j] < 0) {
+						moves.push_back(create_move(col, row, j, i));
+						break;
+					} else if (board[i][j] > 0) {
+						break;
+					}
+				}
+			}
+			// make secondary diagonal moves
+			for (int i = row - 1, j = col + 1; i > 1 && j < 10; i--, j++) {
+				if ((i + j) == (row + col)) {
+					if (board[i][j] == 0) {
+						moves.push_back(create_move(col, row, j, i));
+					} else if (board[i][j] < 0) {
+						moves.push_back(create_move(col, row, j, i));
+						break;
+					} else if (board[i][j] > 0) {
+						break;
+					}
+				}
+			}
+			for (int i = row + 1, j = col - 1; i < 10 && j > 1; i++, j--) {
+				if ((i + j) == (row + col)) {
+					if (board[i][j] == 0) {
+						moves.push_back(create_move(col, row, j, i));
+					} else if (board[i][j] < 0) {
+						moves.push_back(create_move(col, row, j, i));
+						break;
+					} else if (board[i][j] > 0) {
+						break;
+					}
+				}
+			}
+			if (moves.size() == 0) {
+				moves.push_back("");
+			}
+		break;
+
+		case rook:
+			// make column moves
+			for (int i = col + 1; i < 10; i++) {
+				if (board[row][i] == 0) {
+					moves.push_back(create_move(col, row, i, row));
+				} else if (board[row][i] < 0) {
+					moves.push_back(create_move(col, row, i, row));
+					break;
+				} else if (board[row][i] > 0) {
+					break;
+				}
+			}
+			for (int i = col - 1; i > 1; i--) {
+				if (board[row][i] == 0) {
+					moves.push_back(create_move(col, row, i, row));
+				} else if (board[row][i] < 0) {
+					moves.push_back(create_move(col, row, i, row));
+					break;
+				} else if (board[row][i] > 0) {
+					break;
+				}
+			}
+			// make row moves
+			for (int i = row + 1; i < 10; i++) {
+				if (board[i][col] == 0) {
+					moves.push_back(create_move(col, row, col, i));
+				} else if (board[i][col] < 0) {
+					moves.push_back(create_move(col, row, col, i));
+					break;
+				} else if (board[i][col] > 0) {
+					break;
+				}
+			}
+			for (int i = row - 1; i > 1; i--) {
+				if (board[i][col] == 0) {
+					moves.push_back(create_move(col, row, col, i));
+				} else if (board[i][col] < 0) {
+					moves.push_back(create_move(col, row, col, i));
+					break;
+				} else if (board[i][col] > 0) {
+					break;
+				}
+			}
+			if (moves.size() == 0) {
+				moves.push_back("");
+			}
+		break;
+
+		case queen:
+			// bishop + rook
+			// bishop
+			for (int i = row - 1, j = col - 1; i > 1 && j > 1; i--, j--) {
+				if ((i - j) == (row - col)) {
+					if (board[i][j] == 0) {
+						moves.push_back(create_move(col, row, j, i));
+					} else if (board[i][j] < 0) {
+						moves.push_back(create_move(col, row, j, i));
+						break;
+					} else if (board[i][j] > 0) {
+						break;
+					}
+				}
+				
+			}
+			for (int i = row + 1, j = col + 1; i < 10 && j < 10; i++, j++) {
+				if ((i - j) == (row - col)) {
+					if (board[i][j] == 0) {
+						moves.push_back(create_move(col, row, j, i));
+					} else if (board[i][j] < 0) {
+						moves.push_back(create_move(col, row, j, i));
+						break;
+					} else if (board[i][j] > 0) {
+						break;
+					}
+				}
+			}
+			for (int i = row - 1, j = col + 1; i > 1 && j < 10; i--, j++) {
+				if ((i + j) == (row + col)) {
+					if (board[i][j] == 0) {
+						moves.push_back(create_move(col, row, j, i));
+					} else if (board[i][j] < 0) {
+						moves.push_back(create_move(col, row, j, i));
+						break;
+					} else if (board[i][j] > 0) {
+						break;
+					}
+				}
+			}
+			for (int i = row + 1, j = col - 1; i < 10 && j > 1; i++, j--) {
+				if ((i + j) == (row + col)) {
+					if (board[i][j] == 0) {
+						moves.push_back(create_move(col, row, j, i));
+					} else if (board[i][j] < 0) {
+						moves.push_back(create_move(col, row, j, i));
+						break;
+					} else if (board[i][j] > 0) {
+						break;
+					}
+				}
+			}
+
+			// rook
+			for (int i = col + 1; i < 10; i++) {
+				if (board[row][i] == 0) {
+					moves.push_back(create_move(col, row, i, row));
+				} else if (board[row][i] < 0) {
+					moves.push_back(create_move(col, row, i, row));
+					break;
+				} else if (board[row][i] > 0) {
+					break;
+				}
+			}
+			for (int i = col - 1; i > 1; i--) {
+				if (board[row][i] == 0) {
+					moves.push_back(create_move(col, row, i, row));
+				} else if (board[row][i] < 0) {
+					moves.push_back(create_move(col, row, i, row));
+					break;
+				} else if (board[row][i] > 0) {
+					break;
+				}
+			}
+			
+			for (int i = row + 1; i < 10; i++) {
+				if (board[i][col] == 0) {
+					moves.push_back(create_move(col, row, col, i));
+				} else if (board[i][col] < 0) {
+					moves.push_back(create_move(col, row, col, i));
+					break;
+				} else if (board[i][col] > 0) {
+					break;
+				}
+			}
+			for (int i = row - 1; i > 1; i--) {
+				if (board[i][col] == 0) {
+					moves.push_back(create_move(col, row, col, i));
+				} else if (board[i][col] < 0) {
+					moves.push_back(create_move(col, row, col, i));
+					break;
+				} else if (board[i][col] > 0) {
+					break;
+				}
+			}
+			if (moves.size() == 0) {
+				moves.push_back("");
+			}
+		break;
+
+		case knight:
+			add_simple_move(moves, board, row, col, 1, -2);
+			add_simple_move(moves, board, row, col, 1, 2);
+			add_simple_move(moves, board, row, col, 2, -1);
+			add_simple_move(moves, board, row, col, 2, 1);
+			add_simple_move(moves, board, row, col, -1, -2);
+			add_simple_move(moves, board, row, col, -1, 2);
+			add_simple_move(moves, board, row, col, -2, -1);
+			add_simple_move(moves, board, row, col, -2, 1);
+			if (moves.size() == 0) {
+				moves.push_back("");
+			}
+		break;
+
+		case king:
+			add_simple_move(moves, board, row, col, 1, 1);
+			add_simple_move(moves, board, row, col, 1, 0);
+			add_simple_move(moves, board, row, col, 1, -1);
+			add_simple_move(moves, board, row, col, 0, 1);
+			add_simple_move(moves, board, row, col, 0, -1);
+			add_simple_move(moves, board, row, col, -1, 1);
+			add_simple_move(moves, board, row, col, -1, 0);
+			add_simple_move(moves, board, row, col, -1, -1);
+			if (moves.size() == 0) {
+				moves.push_back("");
+			}
+		break;
+
 		default:
-			return "";
+			moves.push_back("");
 			break;
 	}
-
-	move.at(0) = col_to_coord(col);
-	move.at(1) = row_to_coord(row);
-	move.at(2) = col_to_coord(new_col);
-	move.at(3) = row_to_coord(new_row);
-
-	return move;
+	return moves;
 }
 
 // updates the internal board representation

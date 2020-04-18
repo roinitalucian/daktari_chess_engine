@@ -25,6 +25,16 @@ std::string convert_move(std::string m) {
 	return new_m;
 }
 
+
+std::string create_move(int col, int row, int new_col, int new_row) {
+	std::string move = "qqqq";
+	move.at(0) = col_to_coord(col);
+	move.at(1) = row_to_coord(row);
+	move.at(2) = col_to_coord(new_col);
+	move.at(3) = row_to_coord(new_row);
+	return move;
+}
+
 bool is_move(std::string input) {
 	if (input.length() != 4) {
 		return false;
