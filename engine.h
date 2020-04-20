@@ -1,6 +1,9 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#include <vector>
+#include <utility>
+
 using namespace std;
 
 const int pawn = 1;
@@ -25,6 +28,10 @@ void flip_board(int board[12][12]);
 void move(string m, int board[12][12]);
 void initialize_game(int board[12][12], bool *play_white,
 	bool *play_black, bool *white_turn, bool *black_turn);
+pair<int, int> get_king_coords(int board[12][12]);
+bool is_check (int board[12][12]); 
+void add_simple_move (vector<string> &moves, int board[12][12], int row, int col,
+	int row_mod, int col_mod);
 void make_move(int board[12][12], int time, int otim, bool play_white);
 int force_mode(int board[12][12], bool *play_white, bool *play_black,
 	bool *white_turn, bool *black_turn);

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <ctype.h>
+#include <utility>
 
 #include "engine.h"
 #include "utils.h"
@@ -140,10 +141,10 @@ void make_move(int board[12][12], int time, int otim, bool play_white) {
 	// it work just for the pawns atm
 	for (int i = 2; i < 10; i++) {
 		for(int j = 2; j < 10; j++) {
-			if (board[i][j] > 0) {
+			if (board[i][j] > 0 && board[i][j] != rim) {
 				// to be modified
 				next_move = search_legal_move(board, i, j, board[i][j])
-				[search_legal_move(board, i, j, board[i][j]).size() - 1];
+				[0];
 				if (next_move != "") {
 					move(next_move, board);
 					if (play_white) {
@@ -156,6 +157,99 @@ void make_move(int board[12][12], int time, int otim, bool play_white) {
 		}
 	}
 	cout << "resign\n";
+}
+
+pair<int, int> get_king_coords(int board[12][12]) {
+	for (int i = 2; i < 10; i++) {
+		for (int j = 2; j < 10; j++) {
+			if (board[i][j] == king) {
+				return make_pair(i, j);
+			}
+		}
+	}
+}
+
+bool is_check (int board[12][12]) {
+	int row = get_king_coords(board).first;
+	int col = get_king_coords(board).second;
+	for (int i = row - 1, j = col - 1; i > 1 && j > 1; i--, j--) {
+		if ((i - j) == (row - col)) {
+			if (board[i][j] == op_bishop || board[i][j] == op_queen) {
+				return true;
+			} else if (board[i][j] > 0) {
+				break;
+			}
+		}
+	}
+	for (int i = row + 1, j = col + 1; i < 10 && j < 10; i++, j++) {
+		if ((i - j) == (row - col)) {
+			if (board[i][j] == op_bishop || board[i][j] == op_queen) {
+				return true;
+			} else if (board[i][j] > 0) {
+				break;
+			}
+		}
+	}
+	for (int i = row - 1, j = col + 1; i > 1 && j < 10; i--, j++) {
+		if ((i + j) == (row + col)) {
+			if (board[i][j] == op_bishop || board[i][j] == op_queen) {
+				return true;
+			} else if (board[i][j] > 0) {
+				break;
+			}
+		}
+	}
+	for (int i = row + 1, j = col - 1; i < 10 && j > 1; i++, j--) {
+		if ((i + j) == (row + col)) {
+			if (board[i][j] == op_bishop || board[i][j] == op_queen) {
+				return true;
+			} else if (board[i][j] > 0) {
+				break;
+			}
+		}
+	}
+
+	for (int i = col + 1; i < 10; i++) {
+		if (board[row][i] == op_rook || board[row][i] == op_queen) {
+			return true;
+		} else if (board[row][i] > 0) {
+			break;
+		}
+	}
+	for (int i = col - 1; i > 1; i--) {
+		if (board[row][i] == op_rook || board[row][i] == op_queen) {
+			return true;
+		} else if (board[row][i] > 0) {
+			break;
+		}
+	}
+	for (int i = row + 1; i < 10; i++) {
+		if (board[i][col] == op_rook ||board[i][col] == op_queen) {
+			return true;
+		} else if (board[i][col] > 0) {
+			break;
+		}
+	}
+	for (int i = row - 1; i > 1; i--) {
+		if (board[i][col] == op_rook ||board[i][col] == op_queen) {
+			return true;
+		} else if (board[i][col] > 0) {
+			break;
+		}
+	}
+
+	if (board[row + 1][col - 1] == op_pawn || board[row + 1][col + 1] == op_pawn) {
+		return true;
+	}
+
+	if (board[row + 2][col + 1] == op_knight || board[row + 2][col - 1] == op_knight ||
+		board[row + 1][col + 2] == op_knight || board[row + 1][col - 2] == op_knight ||
+		board[row - 2][col + 1] == op_knight || board[row - 2][col - 1] == op_knight ||
+		board[row - 1][col + 2] == op_knight || board[row - 1][col - 2] == op_knight) {
+		return true;
+	}
+
+	return false;
 }
 
 // moves for king and knight
@@ -176,6 +270,11 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 	int new_col;
 	switch (piece) {
 		case pawn:
+			if (row == 2 && board[row + 2][col] == empty) {
+				new_row = row + 2;
+				new_col = col;
+				moves.push_back(create_move(col, row, new_col, new_row));
+			}
 			if (board[row + 1][col] == empty) {
 				new_row = row + 1;
 				new_col = col;
@@ -205,7 +304,7 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 					} else if (board[i][j] < 0) {
 						moves.push_back(create_move(col, row, j, i));
 						break;
-					} else if (board[i][j] > 0) {
+					} else if (board[i][j] > 0 && board[i][j] != rim) {
 						break;
 					}
 				}
@@ -217,7 +316,7 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 					} else if (board[i][j] < 0) {
 						moves.push_back(create_move(col, row, j, i));
 						break;
-					} else if (board[i][j] > 0) {
+					} else if (board[i][j] > 0 && board[i][j] != rim) {
 						break;
 					}
 				}
@@ -230,7 +329,7 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 					} else if (board[i][j] < 0) {
 						moves.push_back(create_move(col, row, j, i));
 						break;
-					} else if (board[i][j] > 0) {
+					} else if (board[i][j] > 0 && board[i][j] != rim) {
 						break;
 					}
 				}
@@ -242,7 +341,7 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 					} else if (board[i][j] < 0) {
 						moves.push_back(create_move(col, row, j, i));
 						break;
-					} else if (board[i][j] > 0) {
+					} else if (board[i][j] > 0 && board[i][j] != rim) {
 						break;
 					}
 				}
