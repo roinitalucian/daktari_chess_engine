@@ -23,7 +23,7 @@ int start_game() {
 	int board[12][12] = {
 		{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
 		{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
-		{7, 7, 4, 2, 3, 6, 5, 3, 2, 4, 7, 7},
+		{7, 7, 4, 2, 3, 5, 6, 3, 2, 4, 7, 7},
 		{7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7},
 		{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
 		{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
@@ -236,6 +236,16 @@ pair<int, int> get_king_coords(int board[12][12]) {
 	}
 }
 
+pair<int, int> get_op_king_coords(int board[12][12]) {
+	for (int i = 2; i < 10; i++) {
+		for (int j = 2; j < 10; j++) {
+			if (board[i][j] == op_king) {
+				return make_pair(i, j);
+			}
+		}
+	}
+}
+
 bool is_check (int board[12][12]) {
 	int row = get_king_coords(board).first;
 	int col = get_king_coords(board).second;
@@ -329,6 +339,27 @@ void add_simple_move (vector<string> &moves, int board[12][12], int row, int col
 		moves.push_back(create_move(col, row, new_col, new_row));
 	}
 }
+
+void add_king_move (vector<string> &moves, int board[12][12], int row, int col,
+	int row_mod, int col_mod) {
+	int x = get_op_king_coords(board).first;
+	int y = get_op_king_coords(board).second;
+	int new_row, new_col;
+	if (board[row + row_mod][col + col_mod] <= 0) {
+		new_row = row + row_mod;
+		new_col = col + col_mod;
+		if (!(new_row == x + 1 && new_col == y + 1 ||
+			new_row == x + 1 && new_col == y ||
+			new_row == x + 1 && new_col == y - 1 ||
+			new_row == x - 1 && new_col == y + 1 ||
+			new_row == x - 1 && new_col == y ||
+			new_row == x - 1 && new_col == y - 1 ||
+			new_row == x && new_col == y - 1 ||
+			new_row == x && new_col == y + 1))
+		moves.push_back(create_move(col, row, new_col, new_row));
+	}
+}
+
 
 // searches all legal moves a piece can make from a given position
 vector<string> search_legal_move(int board[12][12]) {
@@ -573,14 +604,14 @@ vector<string> search_legal_move(int board[12][12]) {
 		break;
 
 		case king:
-			add_simple_move(moves, board, row, col, 1, 1);
-			add_simple_move(moves, board, row, col, 1, 0);
-			add_simple_move(moves, board, row, col, 1, -1);
-			add_simple_move(moves, board, row, col, 0, 1);
-			add_simple_move(moves, board, row, col, 0, -1);
-			add_simple_move(moves, board, row, col, -1, 1);
-			add_simple_move(moves, board, row, col, -1, 0);
-			add_simple_move(moves, board, row, col, -1, -1);
+			add_king_move(moves, board, row, col, 1, 1);
+			add_king_move(moves, board, row, col, 1, 0);
+			add_king_move(moves, board, row, col, 1, -1);
+			add_king_move(moves, board, row, col, 0, 1);
+			add_king_move(moves, board, row, col, 0, -1);
+			add_king_move(moves, board, row, col, -1, 1);
+			add_king_move(moves, board, row, col, -1, 0);
+			add_king_move(moves, board, row, col, -1, -1);
 			
 		break;
 
