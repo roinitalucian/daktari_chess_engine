@@ -86,6 +86,16 @@ int start_game() {
 		} else if (input ==  "new") {
 			return 1;
 
+		} else if (is_promotion(input)) {
+			int x = coord_to_row(input.at(3));
+			int y = coord_to_col(input.at(2));
+			if (play_white) {
+				input = convert_move(input.substr(0, 3));
+			}
+			move(input, board);
+			make_move(board, time, otim, play_white);
+			board[x][y] = -queen;
+
 		} else if (is_move (input)){
 			if (play_white) {
 				input = convert_move(input);

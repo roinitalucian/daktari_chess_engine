@@ -13,5 +13,11 @@ clean:
 	rm received_commands.txt
 	rm *.debug
 
-run: build
+run:
+	./engine
+
+check:
+	../xboard -fcp "make run" -scp "fairymax" -secondInitString "new\nrandom\nsd 2\n" -tc 5 -inc 2 -autoCallFlag true -mg 10 -sgf partide.txt -reuseFirst false -pieceImageDirectory ../svg/ -debug
+
+test: build
 	../xboard -fcp ./engine -debug -pieceImageDirectory ../svg/

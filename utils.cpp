@@ -46,6 +46,18 @@ bool is_move(std::string input) {
 	return (islower(c1) && islower(c3) && isdigit(c2) && isdigit(c4));
 }
 
+bool is_promotion(std::string input) {
+	if (input.length() != 5) {
+		return false;
+	}
+	char c1 = input.at(0);
+	char c2 = input.at(1);
+	char c3 = input.at(2);
+	char c4 = input.at(3);
+	char c5 = input.at(4);
+	return (islower(c1) && islower(c3) && isdigit(c2) && isdigit(c4) && islower(c5));
+}
+
 bool my_turn(bool white_turn, bool black_turn, bool play_white, bool play_black) {
 	return !((white_turn && play_black) || (black_turn && play_white));
 }
