@@ -25,7 +25,8 @@ const int empty = 0;
 
 int start_game(); // returns 1 if replay is active
 void flip_board(int board[12][12]);
-void move(string m, int board[12][12]);
+int move(string m, int board[12][12]);
+void undo_move(string m, int board[12][12], int taken_piece);
 void initialize_game(int board[12][12], bool *play_white,
 	bool *play_black, bool *white_turn, bool *black_turn);
 pair<int, int> get_king_coords(int board[12][12]);
@@ -35,8 +36,15 @@ void add_simple_move (vector<string> &moves, int board[12][12], int row, int col
 void make_move(int board[12][12], int time, int otim, bool play_white);
 int force_mode(int board[12][12], bool *play_white, bool *play_black,
 	bool *white_turn, bool *black_turn);
-vector<string> search_legal_move(int board[12][12], int row, int col, int piece);
+vector<string> search_legal_move(int board[12][12]);
+
+
+int alpha_beta_negamax(int alpha, int beta, int depth, int board[12][12], string *m);
+int evaluate_move(int board[12][12]);
+bool game_over(int board[12][12]);
+
 
 void print_board(int board[12][12], ofstream& f);
+void print_board_d(int board[12][12]);
 
 #endif

@@ -5,6 +5,8 @@
 #include <vector>
 #include <ctype.h>
 #include <utility>
+#include <cstdlib>
+#include <ctime>
 
 #include "engine.h"
 #include "utils.h"
@@ -16,10 +18,12 @@ int start_game() {
 	ofstream myfile;
 	myfile.open ("received_commands.txt");
 
+	srand(time(NULL));
+
 	int board[12][12] = {
 		{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
 		{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
-		{7, 7, 4, 2, 3, 5, 6, 3, 2, 4, 7, 7},
+		{7, 7, 4, 2, 3, 6, 5, 3, 2, 4, 7, 7},
 		{7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7},
 		{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
 		{7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7},
@@ -135,29 +139,92 @@ int force_mode(int board[12][12], bool *play_white, bool *play_black,
 	return 0;
 }
 
-// outputs the move to xboard
+int evaluate_move(int board[12][12]) {
+	return rand() % 15 + 1;
+}
+
+bool game_over(int board[12][12]) {
+	return false;
+}
+
+int alpha_beta_negamax(int alpha, int beta, int depth, int board[12][12], string* m) {
+	if (depth == 0 || game_over(board)) {
+		return evaluate_move(board);
+	} 
+
+	int max = -9999999;
+
+	for (string next_move : search_legal_move(board)) {
+		int taken_piece = move(next_move, board);
+
+		int score = -alpha_beta_negamax(-beta, -alpha, depth - 1, board, m);
+
+		if (score >= max) {
+			max = score;
+		}
+
+		if (max > alpha) {
+			alpha = max;
+			*m = next_move;
+		}
+
+		if (alpha >= beta) {
+			break;
+		}
+
+		undo_move(next_move, board, taken_piece);
+	}
+
+	return alpha;
+}
+
 void make_move(int board[12][12], int time, int otim, bool play_white) {
-	string next_move;
-	// it work just for the pawns atm
-	for (int i = 2; i < 10; i++) {
-		for(int j = 2; j < 10; j++) {
-			if (board[i][j] > 0 && board[i][j] != rim) {
-				// to be modified
-				next_move = search_legal_move(board, i, j, board[i][j])
-				[0];
-				if (next_move != "") {
-					move(next_move, board);
-					if (play_white) {
-						next_move = convert_move(next_move);
-					}
-					cout << "move " << next_move << "\n";
-					return;
-				}
-			}
+	string next_move = "qqqq";
+	print_board_d(board);
+	for (string s : search_legal_move(board)) {
+		if (play_white) {
+			cout << "# " << convert_move(s) << endl;
+		} else {
+			cout << "# " << s << endl;
 		}
 	}
-	cout << "resign\n";
+	cout <<"# "<< search_legal_move(board)[0]<<endl;
+	alpha_beta_negamax(-99999, 99999, 1, board, &next_move);
+
+	if (1) {
+		move(next_move, board);
+		if (play_white) {
+			next_move = convert_move(next_move);
+		}
+		cout << "move " << next_move << "\n";
+		return;
+	}
+
 }
+
+// // outputs the move to xboard
+// void make_move(int board[12][12], int time, int otim, bool play_white) {
+// 	string next_move;
+// 	// it work just for the pawns atm
+// 	for (int i = 2; i < 10; i++) {
+// 		for(int j = 2; j < 10; j++) {
+// 			if (board[i][j] > 0 && board[i][j] != rim) {
+// 				// to be modified
+// 				next_move = search_legal_move(board, i, j, board[i][j])
+// 				[0];
+// 				if (next_move != "") {
+// 					move(next_move, board);
+// 					if (play_white) {
+// 						next_move = convert_move(next_move);
+// 					}
+// 					cout << "move " << next_move << "\n";
+// 					return;
+// 				}
+// 			}
+// 		}
+// 	}
+// 	cout << "resign\n";
+// }
 
 pair<int, int> get_king_coords(int board[12][12]) {
 	for (int i = 2; i < 10; i++) {
@@ -264,11 +331,14 @@ void add_simple_move (vector<string> &moves, int board[12][12], int row, int col
 }
 
 // searches all legal moves a piece can make from a given position
-vector<string> search_legal_move(int board[12][12], int row, int col, int piece) {
+vector<string> search_legal_move(int board[12][12]) {
 	vector<string> moves;
 	int new_row;
 	int new_col;
-	switch (piece) {
+	for (int row = 2; row < 10; row++) {
+		for(int col = 2; col < 10; col++) {
+			if (board[row][col] > 0 && board[row][col] != rim) {
+	switch (board[row][col]) {
 		case pawn:
 			if (row == 2 && board[row + 2][col] == empty) {
 				new_row = row + 2;
@@ -289,9 +359,6 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 				new_row = row + 1;
 				new_col = col - 1;
 				moves.push_back(create_move(col, row, new_col, new_row));
-			}
-			if (moves.size() == 0) {
-				moves.push_back("");
 			}
 		break;
 
@@ -346,9 +413,7 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 					}
 				}
 			}
-			if (moves.size() == 0) {
-				moves.push_back("");
-			}
+			
 		break;
 
 		case rook:
@@ -394,9 +459,7 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 					break;
 				}
 			}
-			if (moves.size() == 0) {
-				moves.push_back("");
-			}
+			
 		break;
 
 		case queen:
@@ -494,9 +557,7 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 					break;
 				}
 			}
-			if (moves.size() == 0) {
-				moves.push_back("");
-			}
+			
 		break;
 
 		case knight:
@@ -508,9 +569,7 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 			add_simple_move(moves, board, row, col, -1, 2);
 			add_simple_move(moves, board, row, col, -2, -1);
 			add_simple_move(moves, board, row, col, -2, 1);
-			if (moves.size() == 0) {
-				moves.push_back("");
-			}
+			
 		break;
 
 		case king:
@@ -522,27 +581,49 @@ vector<string> search_legal_move(int board[12][12], int row, int col, int piece)
 			add_simple_move(moves, board, row, col, -1, 1);
 			add_simple_move(moves, board, row, col, -1, 0);
 			add_simple_move(moves, board, row, col, -1, -1);
-			if (moves.size() == 0) {
-				moves.push_back("");
-			}
+			
 		break;
 
 		default:
 			moves.push_back("");
 			break;
 	}
-	return moves;
+}}}
+
+	vector<string> filtered_moves;
+	for (string next_move : moves) {
+		int taken_piece = move(next_move, board);
+		if (!is_check(board)) {
+			filtered_moves.push_back(next_move);
+		} else {
+			cout << "# AR FI SAH LA " << (true == true ? convert_move(next_move) : next_move) << endl;
+		}
+		undo_move(next_move, board, taken_piece);
+	}
+	return filtered_moves;
 }
 
 // updates the internal board representation
-void move(string m, int board[12][12]) {
+int move(string m, int board[12][12]) {
 	int col = coord_to_col(m.at(0));
 	int row = coord_to_row(m.at(1));
 	int new_col = coord_to_col(m.at(2));
 	int new_row = coord_to_row(m.at(3));
 	int piece = board[row][col];
+	int taken_piece = board[new_row][new_col];
 	board[row][col] = 0;
 	board[new_row][new_col] = piece;
+	return taken_piece;
+}
+
+void undo_move(string m, int board[12][12], int taken_piece) {
+	int col = coord_to_col(m.at(0));
+	int row = coord_to_row(m.at(1));
+	int new_col = coord_to_col(m.at(2));
+	int new_row = coord_to_row(m.at(3));
+	int piece = board[new_row][new_col];
+	board[row][col] = piece;
+	board[new_row][new_col] = taken_piece;
 }
 
 // turns the table
@@ -572,6 +653,22 @@ void initialize_game(int board[12][12], bool *play_white,
 /**
 	for debugging
 */
+
+void print_board_d(int board[12][12]) {
+	cout << "# " << endl;
+	for (int i = 2; i < 10; i++) {
+		cout << "# ";
+		for(int j = 2; j < 10; j++) {
+			if (board[i][j] >= 0)
+				cout << board[i][j] << " | ";
+			else
+				cout << board[i][j] << "| ";
+		}
+		cout << "# " << endl << "# -------------------------------" << endl;
+	}
+}
+
+
 void print_board(int board[12][12], ofstream& f) {
 	f << endl;
 	for (int i = 2; i < 10; i++) {
