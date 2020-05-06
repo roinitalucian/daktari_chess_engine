@@ -23,31 +23,47 @@ const int op_king = -6;
 const int rim = 7;
 const int empty = 0;
 
-int start_game(); // returns 1 if replay is active
-void flip_board(int board[12][12]);
-int move(string m, int board[12][12]);
-void undo_move(string m, int board[12][12], int taken_piece);
+
+// returns 1 if replay is active
+int start_game();
+
+
+// the first function that should be called inside start_game()
 void initialize_game(int board[12][12], bool *play_white,
 	bool *play_black, bool *white_turn, bool *black_turn);
-pair<int, int> get_king_coords(int board[12][12]);
-pair<int, int> get_op_king_coords(int board[12][12]);
-bool is_check (int board[12][12]); 
-void add_simple_move (vector<string> &moves, int board[12][12], int row, int col,
-	int row_mod, int col_mod);
-void add_king_move (vector<string> &moves, int board[12][12], int row, int col,
-	int row_mod, int col_mod);
-void make_move(int board[12][12], int time, int otim, bool play_white);
+
+
+// puts the engine into force mode
+// returns 1 if "new" is given during it
+// returns 0 for "go"
 int force_mode(int board[12][12], bool *play_white, bool *play_black,
 	bool *white_turn, bool *black_turn);
-vector<string> search_legal_move(int board[12][12]);
 
 
-int alpha_beta_negamax(int alpha, int beta, int depth, int board[12][12], string *m);
-int evaluate_move(int board[12][12]);
-bool game_over(int board[12][12]);
+// the engine starts computing its next move
+// calls the negamax function
+void make_move(int board[12][12], int time, int otim, bool play_white);
 
 
-void print_board(int board[12][12], ofstream& f);
-void print_board_d(int board[12][12]);
+// updates the internal representation of the board
+int move(string m, int board[12][12]);
+
+
+// undoes the changes made by move()
+void undo_move(string m, int board[12][12], int taken_piece);
+
+
+// turns the board 180 degrees
+void flip_board(int board[12][12]);
+
+
+// initializes the board for playing white
+// only called at the begginig of the game
+void white_board(int board[12][12]);
+
+
+// same but for playing white
+void black_board(int board[12][12]);
+
 
 #endif

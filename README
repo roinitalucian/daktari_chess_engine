@@ -49,6 +49,16 @@ Algorithmic approach:
 
 
 
+	PHASE 2
+
+		We used a negamax algorithm with alpha-beta pruning for deciding which
+	move would be the best in each state. We did not implement a good state
+	evaluation function	yet, so it doesn't play very good. It computes moves
+	in acceptable time at a depth of 4. At the moment, it usually loses to
+	Fairymax in around 35-45 moves.
+
+
+
 
 
 Sources:
@@ -63,9 +73,16 @@ Sources:
 
 Responsibilities:
 
-	- Roinita Lucian: started the project and implemented the main features
-	of the engine.
-	- Calin Dragos: implemented some commands and fixed several problems
-	of the program.
-	- Mitrofan Laurentiu: fixed multiple errors and helped with the general
-	flow of the program.
+	- Roinita Lucian:
+			started the project and implemented the main features
+		of the engine.
+			implemented the negamax algorithm
+
+	- Calin Dragos:
+			implemented some commands and fixed several problems
+		of the program.
+			wrote the function for possible moves
+
+	- Mitrofan Laurentiu:
+			fixed multiple errors and helped with the general
+		flow of the program.
